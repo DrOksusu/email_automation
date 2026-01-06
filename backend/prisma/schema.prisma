@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id           Int        @id @default(autoincrement())
+  employeeCode String     @unique @map("employee_code")
+  name         String
+  email        String?
+  department   String?
+  position     String?
+  hireDate     DateTime?  @map("hire_date")
+  isActive     Boolean    @default(true) @map("is_active")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  paySlips     PaySlip[]
+
+  @@map("employees")
+}
+
+model PaySlip {
+  id              Int        @id @default(autoincrement())
+  employeeId      Int        @map("employee_id")
+  employee        Employee   @relation(fields: [employeeId], references: [id])
+
+  yearMonth       String     @map("year_month")
+
+  basicSalary     Int        @default(0) @map("basic_salary")
+  mealAllowance   Int        @default(0) @map("meal_allowance")
+  overtimePay     Int        @default(0) @map("overtime_pay")
+  incentive       Int        @default(0)
+  otherAllowance  Int        @default(0) @map("other_allowance")
+  totalPayment    Int        @default(0) @map("total_payment")
+
+  nationalPension    Int     @default(0) @map("national_pension")
+  healthInsurance    Int     @default(0) @map("health_insurance")
+  employmentInsurance Int    @default(0) @map("employment_insurance")
+  longTermCare       Int     @default(0) @map("long_term_care")
+  incomeTax          Int     @default(0) @map("income_tax")
+  localIncomeTax     Int     @default(0) @map("local_income_tax")
+  totalDeduction     Int     @default(0) @map("total_deduction")
+
+  netPayment      Int        @default(0) @map("net_payment")
+  pdfPath         String?    @map("pdf_path")
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  emailLogs       EmailLog[]
+
+  @@unique([employeeId, yearMonth])
+  @@map("pay_slips")
+}
+
+model EmailLog {
+  id           Int       @id @default(autoincrement())
+  paySlipId    Int       @map("pay_slip_id")
+  paySlip      PaySlip   @relation(fields: [paySlipId], references: [id])
+
+  recipientEmail String  @map("recipient_email")
+  subject      String
+  status       String
+  errorMessage String?   @map("error_message") @db.Text
+  sentAt       DateTime? @map("sent_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("email_logs")
+}
+
+model PaySlipBatch {
+  id           Int       @id @default(autoincrement())
+  yearMonth    String    @map("year_month")
+  fileName     String    @map("file_name")
+  filePath     String    @map("file_path")
+  totalCount   Int       @default(0) @map("total_count")
+  parsedCount  Int       @default(0) @map("parsed_count")
+  sentCount    Int       @default(0) @map("sent_count")
+  status       String    @default("uploaded")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("pay_slip_batches")
+}
