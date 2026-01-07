@@ -1,19 +1,7 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { prisma } from '../lib/prisma';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized: false
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface SendEmailParams {
   to: string;
@@ -25,8 +13,8 @@ export async function sendEmail(params: SendEmailParams): Promise<boolean> {
   const { to, subject, htmlBody } = params;
 
   try {
-    await transporter.sendMail({
-      from: `"급여명세서 시스템" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
       to,
       subject,
       html: htmlBody,
