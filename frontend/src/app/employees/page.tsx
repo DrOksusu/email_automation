@@ -98,7 +98,7 @@ export default function EmployeesPage() {
         <div className="flex space-x-3">
           <label className="cursor-pointer">
             <input type="file" accept=".csv" onChange={handleCsvUpload} className="hidden" />
-            <Button variant="secondary" as="span"><Upload size={16} className="mr-2" />CSV 업로드</Button>
+            <span className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"><Upload size={16} className="mr-2" />CSV 업로드</span>
           </label>
           <Button onClick={() => { setEditingEmployee(null); setFormData({ employeeCode: '', name: '', email: '', department: '', position: '' }); setShowModal(true); }}>
             <Plus size={16} className="mr-2" />사원 등록
