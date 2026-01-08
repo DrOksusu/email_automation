@@ -1,7 +1,7 @@
-import { Resend } from 'resend';
+import sgMail from '@sendgrid/mail';
 import { prisma } from '../lib/prisma';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 interface SendEmailParams {
   to: string;
@@ -13,8 +13,8 @@ export async function sendEmail(params: SendEmailParams): Promise<boolean> {
   const { to, subject, htmlBody } = params;
 
   try {
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+    await sgMail.send({
+      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
       to,
       subject,
       html: htmlBody,
