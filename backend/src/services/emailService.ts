@@ -11,17 +11,21 @@ interface SendEmailParams {
 
 export async function sendEmail(params: SendEmailParams): Promise<boolean> {
   const { to, subject, htmlBody } = params;
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com';
+  console.log('=== EMAIL ===', { from: fromEmail, to, subject, hasKey: !!process.env.SENDGRID_API_KEY });
 
   try {
-    await sgMail.send({
-      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com',
+    const response = await sgMail.send({
+      from: fromEmail,
       to,
       subject,
       html: htmlBody,
     });
+    console.log('=== EMAIL SENT ===', response[0].statusCode);
     return true;
-  } catch (error) {
-    console.error('Email send error:', error);
+  } catch (error: any) {
+    console.error('=== EMAIL ERROR ===', error.message);
+    if (error.response) console.error('Response:', JSON.stringify(error.response.body));
     throw error;
   }
 }
@@ -209,6 +213,7 @@ export function generatePaySlipEmailHtml(paySlip: any, employee: any): string {
 }
 
 export async function sendPaySlipEmail(paySlipId: number): Promise<{ success: boolean; error?: string }> {
+  console.log('=== sendPaySlipEmail ===', paySlipId);
   const paySlip = await prisma.paySlip.findUnique({
     where: { id: paySlipId },
     include: { employee: true }
